@@ -15,9 +15,18 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return messageModel.senderId ==
             Supabase.instance.client.auth.currentUser!.id.toString()
-        ? Container(
-          margin: EdgeInsets.all(8),
-          padding: EdgeInsets.all(8),
+        ? senderBubble()
+        : receiverBubble();
+  }
+
+  senderBubble() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(messageModel.sendAt.toString()),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.black12,
             borderRadius: BorderRadius.only(
@@ -28,13 +37,19 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           child: Center(child: Text(messageModel.message)),
-        )
-        : Container(
-          
-          margin: EdgeInsets.all(8),
-          padding: EdgeInsets.all(8),
+        ),
+      ],
+    );
+  }
+
+  receiverBubble() {
+    return Row(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.black12,
+            color: Colors.black,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
@@ -42,7 +57,15 @@ class MessageBubble extends StatelessWidget {
               bottomRight: Radius.circular(10),
             ),
           ),
-          child: Center(child: Text(messageModel.message)),
-        );
+          child: Center(
+            child: Text(
+              messageModel.message,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        Text(messageModel.sendAt.toString()),
+      ],
+    );
   }
 }

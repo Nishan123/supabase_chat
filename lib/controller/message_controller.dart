@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_chat/models/message_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,7 +17,7 @@ class MessageController {
     try {
       return messageTable
           .stream(primaryKey: ["messageId"])
-          .order('sendAt',ascending: true)
+          .order('sendAt', ascending: true)
           .map(
             (data) =>
                 data
@@ -32,6 +33,26 @@ class MessageController {
     } catch (e) {
       debugPrint(e.toString());
       throw Exception("Error while retrieving message: ${e.toString()}");
+    }
+  }
+
+  Future<void> sendImageMessage(File image, MessageModel message) async {
+    try {
+      Supabase.instance.client.auth.currentUser!.id.toString();
+      final fileExt = image.path.split(".").last;
+      final fileName = "${message.senderId}_${message.messageId}.$fileExt";
+      await Supabase.instance.client.storage
+          .from("images")
+          .upload(fileName, image);
+
+      final imageUrl = Supabase.instance.client.storage
+          .from("images")
+          .getPublicUrl(fileName);
+
+      sendMessage(message.copyWith(message: imageUrl));
+    } catch (e) {
+      debugPrint("Field to send image message: ${e.toString()}");
+      throw Exception("Field to send image message: ${e.toString()}");
     }
   }
 }

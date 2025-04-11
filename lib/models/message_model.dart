@@ -1,16 +1,19 @@
 import 'dart:convert';
+
 class MessageModel {
   String messageId;
   String message;
   String senderId;
   String reciverId;
   String? sendAt;
+  bool isImage;
   MessageModel({
     required this.messageId,
     required this.message,
     required this.senderId,
     required this.reciverId,
-     this.sendAt,
+    this.sendAt,
+    required this.isImage,
   });
 
   MessageModel copyWith({
@@ -19,6 +22,7 @@ class MessageModel {
     String? senderId,
     String? reciverId,
     String? sendAt,
+    bool? isImage,
   }) {
     return MessageModel(
       messageId: messageId ?? this.messageId,
@@ -26,6 +30,7 @@ class MessageModel {
       senderId: senderId ?? this.senderId,
       reciverId: reciverId ?? this.reciverId,
       sendAt: sendAt ?? this.sendAt,
+      isImage: isImage ?? this.isImage,
     );
   }
 
@@ -36,6 +41,7 @@ class MessageModel {
       'senderId': senderId,
       'reciverId': reciverId,
       'sendAt': sendAt,
+      'isImage': isImage,
     };
   }
 
@@ -45,7 +51,8 @@ class MessageModel {
       message: map['message'] as String,
       senderId: map['senderId'] as String,
       reciverId: map['reciverId'] as String,
-      sendAt: map['sendAt'] as String,
+      sendAt: map['sendAt'] != null ? map['sendAt'] as String : null,
+      isImage: map['isImage'] as bool,
     );
   }
 
@@ -55,7 +62,7 @@ class MessageModel {
 
   @override
   String toString() {
-    return 'MessageModel(messageId: $messageId, message: $message, senderId: $senderId, reciverId: $reciverId, sendAt: $sendAt)';
+    return 'MessageModel(messageId: $messageId, message: $message, senderId: $senderId, reciverId: $reciverId, sendAt: $sendAt, isImage: $isImage)';
   }
 
   @override
@@ -67,7 +74,8 @@ class MessageModel {
       other.message == message &&
       other.senderId == senderId &&
       other.reciverId == reciverId &&
-      other.sendAt == sendAt;
+      other.sendAt == sendAt &&
+      other.isImage == isImage;
   }
 
   @override
@@ -76,6 +84,7 @@ class MessageModel {
       message.hashCode ^
       senderId.hashCode ^
       reciverId.hashCode ^
-      sendAt.hashCode;
+      sendAt.hashCode ^
+      isImage.hashCode;
   }
 }

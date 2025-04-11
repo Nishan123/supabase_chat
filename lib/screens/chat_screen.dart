@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:random_string/random_string.dart';
 import 'package:supabase_chat/controller/message_controller.dart';
 import 'package:supabase_chat/custom_widgets/message_bubble.dart';
@@ -16,6 +19,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final messageController = TextEditingController();
+  final _image = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +67,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     return ListView.builder(
                       itemCount: messages?.length,
                       itemBuilder: (context, index) {
-                        return MessageBubble(
-                          uid:
-                              Supabase.instance.client.auth.currentUser!.id
-                                  .toString(),
-                          messageModel: messages![index],
-                        );
+                        return messages![index].isImage
+                            ? Image.network(messages[index].message)
+                            : MessageBubble(
+                              uid:
+                                  Supabase.instance.client.auth.currentUser!.id,
+                              messageModel: messages[index],
+                            );
                       },
                     );
                   }
@@ -95,17 +100,40 @@ class _ChatScreenState extends State<ChatScreen> {
                 borderRadius: BorderRadius.circular(0),
               ),
               child: Row(
+                spacing: 0,
                 children: [
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.emoji_emotions),
+                    onPressed: () async {
+                      final selectedImage = await _image.pickImage(
+                        source: ImageSource.gallery,
+                      );
+                      if (selectedImage != null) {
+                        final String messageId = randomAlphaNumeric(6);
+                        final message = MessageModel(
+                          sendAt: DateTime.now().toString(),
+                          messageId: messageId,
+                          message: selectedImage.path,
+                          senderId:
+                              Supabase.instance.client.auth.currentUser!.id,
+                          reciverId: widget.user.uid,
+                          isImage: true,
+                        );
+                        MessageController().sendImageMessage(
+                          File(selectedImage.path),
+                          message,
+                        );
+                      } else {
+                        debugPrint("No image Selected");
+                      }
+                    },
+                    icon: Icon(Icons.image_rounded),
                   ),
                   Expanded(
                     child: TextField(
                       controller: messageController,
                       style: const TextStyle(color: Colors.black),
                       maxLines: null,
-                      onTap: () {},
+
                       keyboardType: TextInputType.multiline,
                       decoration: const InputDecoration(
                         hintText: "Type your Message....",
@@ -116,18 +144,29 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      String messageId = randomAlphaNumeric(12);
-                      final message = MessageModel(
-                        messageId: messageId,
-                        message: messageController.text,
-                        senderId:
-                            Supabase.instance.client.auth.currentUser!.id
-                                .toString(),
-                        reciverId: widget.user.uid,
-                        sendAt: DateTime.now().toString(),
-                      );
-                      await MessageController().sendMessage(message);
-                      messageController.clear();
+                      if (messageController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [Text("Enter Message First")],
+                            ),
+                          ),
+                        );
+                      } else {
+                        String messageId = randomAlphaNumeric(12);
+                        final message = MessageModel(
+                          messageId: messageId,
+                          message: messageController.text,
+                          senderId:
+                              Supabase.instance.client.auth.currentUser!.id
+                                  .toString(),
+                          reciverId: widget.user.uid,
+                          sendAt: DateTime.now().toString(),
+                          isImage: false,
+                        );
+                        await MessageController().sendMessage(message);
+                        messageController.clear();
+                      }
                     },
                     icon: Icon(Icons.send),
                   ),
