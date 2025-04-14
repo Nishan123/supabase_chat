@@ -57,7 +57,7 @@ class AuthServices {
         fullName: fullName??"N/A",
         profileUrl: avatarUrl??"N/A",
         gmail: email??"N/A",
-        joinedAt: DateTime.now().toString(),
+        joinedAt: DateTime.now().toString(), 
       );
 
       await client().from('users_table').insert(userModel.toMap());

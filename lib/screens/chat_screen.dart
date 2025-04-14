@@ -67,13 +67,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     return ListView.builder(
                       itemCount: messages?.length,
                       itemBuilder: (context, index) {
-                        return messages![index].isImage
-                            ? Image.network(messages[index].message)
-                            : MessageBubble(
-                              uid:
-                                  Supabase.instance.client.auth.currentUser!.id,
-                              messageModel: messages[index],
-                            );
+                        return MessageBubble(
+                          uid: Supabase.instance.client.auth.currentUser!.id,
+                          messageModel: messages![index],
+                        );
                       },
                     );
                   }
@@ -107,6 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final selectedImage = await _image.pickImage(
                         source: ImageSource.gallery,
                       );
+                      
                       if (selectedImage != null) {
                         final String messageId = randomAlphaNumeric(6);
                         final message = MessageModel(

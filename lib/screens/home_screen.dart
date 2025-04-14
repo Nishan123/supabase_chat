@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_chat/controller/message_controller.dart';
 import 'package:supabase_chat/controller/user_controller.dart';
 import 'package:supabase_chat/screens/chat_screen.dart';
 import 'package:supabase_chat/screens/profile_screen.dart';
 import 'package:supabase_chat/services/auth_services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -49,7 +51,9 @@ class HomeScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => ChatScreen(user: users[index],)),
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(user: users[index]),
+                      ),
                     );
                   },
                   leading: CircleAvatar(
@@ -58,7 +62,25 @@ class HomeScreen extends StatelessWidget {
                     radius: 20,
                   ),
                   title: Text(user.fullName),
-                  subtitle: Text("Last message..."),
+                  subtitle: FutureBuilder(
+                    future: MessageController().getLastMessage(
+                      Supabase.instance.client.auth.currentUser!.id,
+                      user.uid,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text("Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return Text("Error Loading last message");
+                      } else {
+                        final lastMsg = snapshot.data;
+                        return lastMsg!.isImage
+                            ? Text("Image")
+                            : Text(lastMsg.message);
+                      }
+                    },
+                  ),
                   trailing: Container(
                     height: 10,
                     width: 10,

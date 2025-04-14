@@ -36,7 +36,22 @@ class MessageBubble extends StatelessWidget {
               bottomRight: Radius.zero,
             ),
           ),
-          child: Center(child: Text(messageModel.message)),
+          child: Center(
+            child:
+                messageModel.isImage
+                    ? SizedBox(
+                      height: 200,
+                      width: 120,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          messageModel.message,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                    : Text(messageModel.message),
+          ),
         ),
       ],
     );
@@ -58,10 +73,23 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           child: Center(
-            child: Text(
-              messageModel.message,
-              style: TextStyle(color: Colors.white),
-            ),
+            child:
+                messageModel.isImage
+                    ? SizedBox(
+                      height: 200,
+                      width: 120,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          messageModel.message,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                    : Text(
+                      messageModel.message,
+                      style: TextStyle(color: Colors.white),
+                    ),
           ),
         ),
         Text(messageModel.sendAt.toString()),

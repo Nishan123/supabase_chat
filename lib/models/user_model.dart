@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 class UserModel {
   String uid;
   String fullName;

@@ -55,4 +55,28 @@ class MessageController {
       throw Exception("Field to send image message: ${e.toString()}");
     }
   }
+
+  Future<MessageModel?> getLastMessage(
+    String senderUid,
+    String receiverUid,
+  ) async {
+    try {
+      final response =
+          await messageTable
+              .select()
+              .or('senderId.eq.$senderUid,senderId.eq.$receiverUid')
+              .or('reciverId.eq.$receiverUid,reciverId.eq.$senderUid')
+              .order('sendAt', ascending: false)
+              .limit(1)
+              .maybeSingle();
+
+      if (response == null) {
+        return null;
+      }
+      return MessageModel.fromMap(response);
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception("Error while retrieving last message: ${e.toString()}");
+    }
+  }
 }
